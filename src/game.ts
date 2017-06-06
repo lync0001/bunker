@@ -40,10 +40,16 @@ class Game {
     createRooms() : void {
         // create the rooms
         let home = new Room("in your home");
-        let theater = new Room("in a lecture theater");
-        let pub = new Room("in the campus pub");
-        let lab = new Room("in a computing lab");
-        let office = new Room("in the computing admin office");
+        let mainroad = new Room("on the main road of your town, Prigorodki");
+        let library = new Room("in the Prigorodki library");
+        let field = new Room("in the corn field behind your house");
+        let woods = new Room("in the woods behind your home town");
+        let entrance = new Room("at the outter entrance of the bunker")
+        let hallway = new Room("in the main hallway of the bunker");
+        let bedroom1 = new Room("in a bedroom with a few bunk beds");
+        let bedroom2 = new Room("in a bedroom with a few bunk beds");
+        let bedroom3 = new Room("in a bedroom with a few bunk beds");
+        let controlroom = new Room("in a room with a lot of buttons and monitors");
 
         // initialise room exits
         home.setExits(null, null, null, null);
@@ -53,7 +59,9 @@ class Game {
         woods.setExits();
         entrance.setExits();
         hallway.setExits();
-        bedroom.setExits();
+        bedroom1.setExits(); 
+        bedroom2.setExits();
+        bedroom3.setExits();
         controlroom.setExits();
 
         // spawn player at home
@@ -205,4 +213,10 @@ class Game {
             return true;  // signal that we want to quit
         }
     }
+    //search(params : string[]) : boolean {
+       // if(params.length > 0) {
+        //    this.out.println("you search the room")
+          //  return this.currentRoom.item
+       // }
+    //}
 }
