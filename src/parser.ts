@@ -56,6 +56,12 @@ class Parser {
             case "go" :
                 wantToQuit = this.game.goRoom(params);
                 break;
+            case "pickup" : 
+                wantToQuit = this.game.pickUp(params);
+                break;
+            case "drop" : 
+                wantToQuit = this.game.drop(params);
+                break;
             case "quit" : 
                 wantToQuit = this.game.quit(params);
                 break;
@@ -69,5 +75,4 @@ class Parser {
             this.game.gameOver();
         }
     }
-
 }

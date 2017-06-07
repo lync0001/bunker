@@ -18,12 +18,10 @@
 class Game {
     parser : Parser;
     out : Printer;
-
     currentRoom : Room;
-
     isOn : boolean;
-
-    items : Array <Item>= [];
+    items : Array<Item> = [];
+    charInv : Array<Item> = [];
 
     /**
      * Create the game and initialise its internal map.
@@ -32,8 +30,8 @@ class Game {
         this.parser = new Parser(this, input);
         this.out = new Printer(output);
         this.isOn = true;
-        this.createRooms();
         this.createItems();
+        this.createRooms();
         this.printWelcome();
     }
 
@@ -42,30 +40,34 @@ class Game {
      */
     createRooms() : void {
         // create the rooms
-        let home = new Room("in your home");
-        let mainroad = new Room("on the main road of your town, Prigorodki");
-        let library = new Room("in the Prigorodki library");
-        let field = new Room("in the corn field behind your house");
-        let woods = new Room("in the woods behind your home town");
-        let entrance = new Room("at the outter entrance of the bunker")
-        let hallway = new Room("in the main hallway of the bunker");
-        let bedroom1 = new Room("in a bedroom with a few bunk beds");
-        let bedroom2 = new Room("in a bedroom with a few bunk beds");
-        let bedroom3 = new Room("in a bedroom with a few bunk beds");
-        let controlroom = new Room("in a room with a lot of buttons and monitors");
+        let home = new Room(" in your home");
+        let mainroad = new Room(" on the main road of your town, Prigorodki");
+        let library = new Room(" in the Prigorodki library");
+        let field = new Room(" in the corn field behind your house");
+        let woods = new Room(" in the woods behind your home town");
+        let entrance = new Room(" at the outter entrance of the bunker")
+        let hallway = new Room(" in the main hallway of the bunker");
+        let bedroom1 = new Room(" in a bedroom with a few bunk beds");
+        let bedroom2 = new Room(" in a bedroom with a few bunk beds and a chest");
+        let controlroom = new Room(" in a room with a lot of buttons and monitors");
 
         // initialise room exits
-        home.setExits(null, null, null, null);
-        mainroad.setExits();
-        library.setExits();
-        field.setExits();
-        woods.setExits();
-        entrance.setExits();
-        hallway.setExits();
-        bedroom1.setExits(); 
-        bedroom2.setExits();
-        bedroom3.setExits();
-        controlroom.setExits();
+        home.setExits(null, null, mainroad, null);
+        mainroad.setExits(library, home, field, null);
+        library.setExits(null, null, mainroad, null);
+        field.setExits(woods, null, mainroad, null);
+        woods.setExits(entrance, null, field, null);
+        entrance.setExits(hallway, null, woods, null);
+        hallway.setExits(controlroom, bedroom1, entrance, bedroom2);
+        bedroom1.setExits(null, null, hallway, null); 
+        bedroom2.setExits(null, null, hallway, null);
+        controlroom.setExits(null, null, hallway, null);
+
+        //spawns an item within a designated room
+        mainroad.setInventory(this.items[0]);
+        field.setInventory(this.items[2]);
+        library.setInventory(this.items[3]);
+        library.setInventory(this.items[3]);
 
         // spawn player at home
         this.currentRoom = home;
@@ -77,7 +79,7 @@ class Game {
 
     createItems() : void {
         //create the items
-        this.items.push(new Item("Your oldschool red rotary phone", "Phone"));
+        this.items.push(new useable("Your oldschool red rotary phone", "Phone"));
         this.items.push(new Item("A strange, large, brass key" , "Bunker Key"));
         this.items.push(new Item("A rusty, sturdy crowbar" , "Crowbar"));
         this.items.push(new Item("A plastic card with a chip in it" , "Bunker override chip ")); 
@@ -194,6 +196,9 @@ class Game {
         else {
             this.currentRoom = nextRoom;
             this.out.println("You are " + this.currentRoom.description);
+            if(this.currentRoom.inventory != null){
+                this.out.println("Items in this room: " + this.currentRoom.inventory.name);
+            }
             this.out.print("Exits: ");
             if(this.currentRoom.northExit != null) {
                 this.out.print("north ");
@@ -211,7 +216,26 @@ class Game {
         }
         return false;
     }
-    
+    pickUp(params : string[]) : boolean {
+        let item = this.currentRoom.inventory;
+        if(item != null){
+            this.charInv.push(item);
+            this.out.println("You pick up: " + item.name);
+            this.currentRoom.inventory = null;
+            return false;
+        }
+    }
+    drop(params : string[]) : boolean {
+        let item = this.currentRoom.inventory;
+        if(item != null){
+            this.charInv.push(item);
+            this.out.println("You pick up: " + item.name);
+            this.currentRoom.inventory = null;
+            return false;
+        }
+    }
+
+
     /** 
      * "Quit" was entered. Check the rest of the command to see
      * whether we really quit the game.
@@ -228,10 +252,4 @@ class Game {
             return true;  // signal that we want to quit
         }
     }
-    //search(params : string[]) : boolean {
-       // if(params.length > 0) {
-        //    this.out.println("you search the room")
-          //  return this.currentRoom.item
-       // }
-    //}
 }

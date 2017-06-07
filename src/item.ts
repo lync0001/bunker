@@ -9,6 +9,7 @@
 class Item{
     description : string ;
     name : string;
+    canUse : boolean;
 
 /** 
  * Create an item description with "description", and an item name with "name".
@@ -17,6 +18,8 @@ class Item{
         this.description = description; 
         this.name = name; 
     }
+
+
 
 
 }

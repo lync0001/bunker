@@ -20,6 +20,8 @@ class Room {
     eastExit : Room;
     westExit : Room;
 
+    inventory : Item;
+
     /**
      * Create a room described "description". Initially, it has
      * no exits. "description" is something like "a kitchen" or
@@ -52,6 +54,11 @@ class Room {
             this.westExit = west;
         }
     }
+
+    setInventory(item : Item){
+        this.inventory = item;
+    }
+
 
 }
 
