@@ -23,6 +23,8 @@ class Game {
 
     isOn : boolean;
 
+    items : Array <Item>= [];
+
     /**
      * Create the game and initialise its internal map.
      */
@@ -31,6 +33,7 @@ class Game {
         this.out = new Printer(output);
         this.isOn = true;
         this.createRooms();
+        this.createItems();
         this.printWelcome();
     }
 
@@ -66,6 +69,18 @@ class Game {
 
         // spawn player at home
         this.currentRoom = home;
+    }
+
+    /**
+     * Create all the items and link them to a room.
+     */
+
+    createItems() : void {
+        //create the items
+        this.items.push(new Item("Your oldschool red rotary phone", "Phone"));
+        this.items.push(new Item("A strange, large, brass key" , "Bunker Key"));
+        this.items.push(new Item("A rusty, sturdy crowbar" , "Crowbar"));
+        this.items.push(new Item("A plastic card with a chip in it" , "Bunker override chip ")); 
     }
 
     /**
