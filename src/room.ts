@@ -22,6 +22,8 @@ class Room {
 
     inventory : Item;
 
+    id : Number; 
+
     /**
      * Create a room described "description". Initially, it has
      * no exits. "description" is something like "a kitchen" or
@@ -58,7 +60,12 @@ class Room {
     setInventory(item : Item){
         this.inventory = item;
     }
-
+    setId(id : number){
+        this.id = id;
+    }
+    getId(){
+        return this.id;
+    }
 
 }
 

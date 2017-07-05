@@ -1,20 +1,4 @@
-/**
- * This class is part of the "Zorld of Wuul" application. 
- * "Zorld of Wuul" is a very simple, text based adventure game.  
- * 
- * Users can walk around some scenery. That's all. It should really be 
- * extended to make it more interesting!
- * 
- * To play this game, create an instance of this class and call the "play"
- * method.
- * 
- * This main class creates and initialises all the others: it creates all
- * rooms, creates the parser and starts the game.  It also evaluates and
- * executes the commands that the parser returns.
- * 
- * @author  Michael Kölling, David J. Barnes, Bugslayer, Jordy Lynch
- * @version 2017.03.30
- */
+
 class Game {
     parser : Parser;
     out : Printer;
@@ -22,6 +6,7 @@ class Game {
     isOn : boolean;
     items : Array<Item> = [];
     charInv : Array<Item> = [];
+    steps : number = 30;
 
     /**
      * Create the game and initialise its internal map.
@@ -51,23 +36,27 @@ class Game {
         let bedroom2 = new Room(" in a bedroom with a few bunk beds and a chest");
         let controlroom = new Room(" in a room with a lot of buttons and monitors");
 
+        //Geef de control room een id zodat je kan kijken of je in de room zit, had ook gekund via de naam van de room maar di was te lang
+        controlroom.setId(1);
+
+
         // initialise room exits
-        home.setExits(null, null, mainroad, null);
+        home.setExits(null, null, null, mainroad);
         mainroad.setExits(library, home, field, null);
         library.setExits(null, null, mainroad, null);
-        field.setExits(woods, null, mainroad, null);
-        woods.setExits(entrance, null, field, null);
-        entrance.setExits(hallway, null, woods, null);
-        hallway.setExits(controlroom, bedroom1, entrance, bedroom2);
-        bedroom1.setExits(null, null, hallway, null); 
-        bedroom2.setExits(null, null, hallway, null);
-        controlroom.setExits(null, null, hallway, null);
+        field.setExits(mainroad, null, woods, null);
+        woods.setExits(field, null, entrance, null);
+        entrance.setExits(woods, null, hallway, null);
+        hallway.setExits(entrance, controlroom, bedroom1, bedroom2);
+        bedroom1.setExits(hallway, null, null, null); 
+        bedroom2.setExits(null, hallway, null, null);
+        controlroom.setExits(null, null, null, hallway);
 
         //spawns an item within a designated room
+
         mainroad.setInventory(this.items[0]);
-        field.setInventory(this.items[2]);
-        library.setInventory(this.items[3]);
-        library.setInventory(this.items[3]);
+        library.setInventory(this.items[1]);
+        
 
         // spawn player at home
         this.currentRoom = home;
@@ -79,10 +68,8 @@ class Game {
 
     createItems() : void {
         //create the items
-        this.items.push(new useable("Your oldschool red rotary phone", "Phone"));
-        this.items.push(new Item("A strange, large, brass key" , "Bunker Key"));
-        this.items.push(new Item("A rusty, sturdy crowbar" , "Crowbar"));
-        this.items.push(new Item("A plastic card with a chip in it" , "Bunker override chip ")); 
+        this.items.push(new Phone("Your oldschool red rotary phone", "Phone"));
+        this.items.push(new Chip("A plastic card with a chip in it" , "Bunker override chip ")); 
     }
 
     /**
@@ -116,7 +103,6 @@ class Game {
 
     gameOver() : void {
         this.isOn = false;
-        this.out.println("You've made it...");
         this.out.println("Hit F5 to restart the game");
     }
 
@@ -132,7 +118,7 @@ class Game {
         this.out.println("I don't know what you mean...");
         this.out.println();
         this.out.println("Your command words are:");
-        this.out.println("   go quit help");
+        this.out.println("   go quit help pickup use");
         return false;
     }
 
@@ -194,6 +180,12 @@ class Game {
             this.out.println("There is no way to get through there");
         }
         else {
+            this.steps -= 1;
+            this.out.println("Steps left till nuclear strike: " + String(this.steps))
+            if(this.steps == 30){
+                this.out.println("The nuclear strike succeeded to launch. Game over.");
+                return true;
+            }
             this.currentRoom = nextRoom;
             this.out.println("You are " + this.currentRoom.description);
             if(this.currentRoom.inventory != null){
@@ -218,22 +210,43 @@ class Game {
     }
     pickUp(params : string[]) : boolean {
         let item = this.currentRoom.inventory;
-        if(item != null){
-            this.charInv.push(item);
-            this.out.println("You pick up: " + item.name);
-            this.currentRoom.inventory = null;
+
+
+         if(item != null){
+            if(item.name = "Phone"){
+                  this.out.println("You pick up: " + item.name);
+                  this.out.println("You hear someone talking on the other side....")  
+                  this.out.println("'I lost my override key in de library, shit!' ")  
+                  this.out.println("'Shit dude, if that gets in the wrong hands someone can stop out evil plan' ")  
+
+                  this.currentRoom.inventory = null;
+            }else{
+                this.charInv.push(item);
+                this.out.println("You pick up: " + item.name);
+                this.currentRoom.inventory = null;
+            }
+
+
+            
+            return false;
+        }else{
+            this.out.println("No item in this room or already picked up.")
+        }
+    }
+    useItem(params: string[]): boolean { 
+        for (let i = 0; i < this.charInv.length; i++) {
+            if (this.currentRoom.getId() == 1 && this.charInv[i].name == "Bunker override chip ") {
+                this.out.println("You use your override chip to stop the countdown of the nuclear missle. Well done!")
+                return true;
+
+            }
+        }
+        {
+            this.out.println("You dont have an item yet, or you're not in the right place to use one.");
             return false;
         }
     }
-    drop(params : string[]) : boolean {
-        let item = this.currentRoom.inventory;
-        if(item != null){
-            this.charInv.push(item);
-            this.out.println("You pick up: " + item.name);
-            this.currentRoom.inventory = null;
-            return false;
-        }
-    }
+
 
 
     /** 
@@ -249,7 +262,7 @@ class Game {
             return false;
         }
         else {
-            return true;  // signal that we want to quit
+            return true; 
         }
     }
 }
